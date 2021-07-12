@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2021 Munin
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<odoo>
+
+    <record model="ir.ui.view" id="project_task_form_view">
+        <field name="name">project.task.form (in project_partner_relation)</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook[1]" position="inside">
+                <page string="Expedientes" attrs="{'invisible':[('partner_id','=',False)]}">
+                    <field name="project_detail_ids"
+                           context="{'default_partner_id':partner_id,'default_project_id':id,'default_origin':name}"
+                           domain="[('partner_id','=',partner_id)]">
+                        <tree string="Partner Project Details">
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="project_id"/>
+                            <field name="partner_id"/>
+                        </tree>
+                        <form>
+                            <group>
+                                <group>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                </group>
+                                <group>
+                                    <field name="project_id"/>
+                                    <field name="origin"/>
+                                </group>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+
+</odoo>
