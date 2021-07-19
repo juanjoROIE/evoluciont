@@ -14,7 +14,7 @@ class Meeting(models.Model):
     _inherit = "calendar.event"
 
     hangout_url = fields.Char('Meet URL')
-    request_id = fields.Char('Request ID', readonly=True)
+    request_id = fields.Char('Request ID', readonly=False)
     meeting_code = fields.Char('Conference Code', readonly=True)
     conference_type = fields.Selection([
         ('hangoutsMeet', 'Google Meeting')], string='Conference Type')

@@ -12,7 +12,12 @@ class GoogleService(models.AbstractModel):
     @api.model
     def _do_request(self, uri, params=None, headers=None, method='POST', preuri="https://www.googleapis.com", timeout=TIMEOUT):
         split_vals = uri.split('/')
-        if split_vals and 'calendars' in split_vals and 'events' in split_vals:
-            uri = uri + '?conferenceDataVersion=1&sendNotifications=True'
+        if split_vals and 'calendars' in split_vals and ('events' in split_vals or 'events?sendUpdates=all' in split_vals):
+            if 'sendUpdates' in uri:
+                # sendNotifications Parameter is deprecated,sendUpdates=all is now recommended to use. this can be a
+                # conflict in the future, try removing sendNotifications.
+                uri = uri + '&conferenceDataVersion=1&sendNotifications=True'
+            else:
+                uri = uri + '?conferenceDataVersion=1&sendNotifications=True'
         res = super(GoogleService, self)._do_request(uri=uri, params=params, headers=headers, method=method, preuri=preuri, timeout=timeout)
         return res
