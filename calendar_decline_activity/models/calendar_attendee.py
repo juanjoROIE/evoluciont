@@ -16,6 +16,8 @@ class CalendarAttendee(models.Model):
     def do_decline(self):
         res = super(CalendarAttendee, self).do_decline()
         for attendee in self:
+            if not self.env.company.sudo().calendar_decline_manager_ids:
+                continue
             manager_partner = self.env.company.sudo().calendar_decline_manager_ids.partner_id.ids
             body = _("<b>%s: %s</b> has declined the invitation.<br/>date: %s") % (attendee.event_id.name,
                                                                                attendee.common_name,
