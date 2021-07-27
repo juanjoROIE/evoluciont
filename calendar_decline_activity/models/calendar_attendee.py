@@ -16,12 +16,12 @@ class CalendarAttendee(models.Model):
     def do_decline(self):
         res = super(CalendarAttendee, self).do_decline()
         for attendee in self:
-            manager_partner = attendee.event_id.user_id.partner_id.ids
-            body = _("<b>%s: %s</b> has declined invitation.<br/>date: %s") % (attendee.event_id.name,
+            manager_partner = self.env.company.sudo().calendar_decline_manager_ids.partner_id.ids
+            body = _("<b>%s: %s</b> has declined the invitation.<br/>date: %s") % (attendee.event_id.name,
                                                                                attendee.common_name,
                                                                                fields.Date.context_today(self))
             self.env['mail.message'].sudo().create({
-                'author_id': attendee.event_id.user_id.partner_id.id,
+                'author_id': self.env.user.partner_id.id,
                 'date': time.strftime('%Y-%m-%d %H:%M:%S'),
                 'message_type': 'comment',
                 'record_name': attendee.event_id.name,
@@ -36,7 +36,7 @@ class CalendarAttendee(models.Model):
                 'body': body,
             })
             send_mail = self.env['mail.mail'].sudo().create({
-                'subject': _('Calendar event: %s , declined.') % attendee.event_id.name,
+                'subject': _('Calendar event: %s , declined the invitation.') % attendee.event_id.name,
                 'author_id': self.env.user.partner_id.id,
                 'body_html': body,
                 'recipient_ids': [(6, 0, manager_partner)],
