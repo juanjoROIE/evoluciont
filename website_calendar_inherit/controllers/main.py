@@ -46,16 +46,15 @@ class WebsiteCalendarSale(WebsiteCalendar):
         date_start = tz_session.localize(fields.Datetime.from_string(datetime_str)).astimezone(pytz.utc)
         date_end = date_start + relativedelta(hours=appointment_type.appointment_duration)
         sale_order = kwargs.get('sale_order', False)
-        sale_order = request.env['sale.order'].sudo().search([('name', '=', sale_order)], limit=1)
-        # if not sale_order:
-        #     return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
-        # try:
-        #     sale_order = request.env['sale.order'].search([('name', '=', sale_order)], limit=1)
-        # except (AccessError, MissingError):
-        #     return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
-        # finally:
-        #     if not sale_order:
-        #         return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
+        if not sale_order:
+            return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
+        try:
+            sale_order = request.env['sale.order'].search([('name', '=', sale_order)], limit=1)
+        except (AccessError, MissingError):
+            return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
+        finally:
+            if not sale_order:
+                return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
         # check availability of the employee again (in case someone else booked while the client was entering the form)
         Employee = request.env['hr.employee'].sudo().browse(int(employee_id))
         if Employee.user_id and Employee.user_id.partner_id:
