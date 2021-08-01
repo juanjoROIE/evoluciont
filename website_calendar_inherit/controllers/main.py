@@ -26,6 +26,10 @@ class WebsiteCalendarSale(WebsiteCalendar):
             partner_data = request.env.user.partner_id.read(fields=['name', 'mobile', 'country_id', 'email'])[0]
         day_name = format_datetime(datetime.strptime(date_time, dtf), 'EEE', locale=get_lang(request.env).code)
         date_formated = format_datetime(datetime.strptime(date_time, dtf), locale=get_lang(request.env).code)
+        last_sale_order = request.env['sale.order'].sudo().browse(request.session.get('sale_last_order_id'))
+        if last_sale_order and not partner_data:
+            partner_data = last_sale_order.sudo().partner_id.read(fields=['name', 'phone', 'country_id', 'email'])[0]
+            partner_data['mobile'] = partner_data.get('phone')
         return request.render("website_calendar.appointment_form", {
             'partner_data': partner_data,
             'appointment_type': appointment_type,
@@ -34,7 +38,7 @@ class WebsiteCalendarSale(WebsiteCalendar):
             'datetime_str': date_time,
             'employee_id': employee_id,
             'countries': request.env['res.country'].search([]),
-            'sale_last_order_id': request.env['sale.order'].sudo().browse(request.session.get('sale_last_order_id')),
+            'sale_last_order_id': last_sale_order,
         })
 
     @http.route(['/calendar/<model("calendar.appointment.type"):appointment_type>/submit'], type='http', auth="public",
@@ -46,15 +50,7 @@ class WebsiteCalendarSale(WebsiteCalendar):
         date_start = tz_session.localize(fields.Datetime.from_string(datetime_str)).astimezone(pytz.utc)
         date_end = date_start + relativedelta(hours=appointment_type.appointment_duration)
         sale_order = kwargs.get('sale_order', False)
-        if not sale_order:
-            return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
-        try:
-            sale_order = request.env['sale.order'].search([('name', '=', sale_order)], limit=1)
-        except (AccessError, MissingError):
-            return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
-        finally:
-            if not sale_order:
-                return request.redirect('/calendar/%s/appointment?failed=sale' % appointment_type.id)
+        sale_order = request.env['sale.order'].sudo().search([('name', '=', sale_order)], limit=1)
         # check availability of the employee again (in case someone else booked while the client was entering the form)
         Employee = request.env['hr.employee'].sudo().browse(int(employee_id))
         if Employee.user_id and Employee.user_id.partner_id:

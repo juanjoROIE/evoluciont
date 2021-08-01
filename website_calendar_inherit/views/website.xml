@@ -20,7 +20,7 @@
             <div class="form-group row col-xl-8">
             <label for="sale_order" class="col-md-4 col-form-label">Reference</label>
             <div class="col-md-8">
-              <input type="text" class="form-control" name="sale_order" t-att-value="sale_last_order_id.name if sale_last_order_id else ''"/>
+              <input type="text" class="form-control" name="sale_order" t-att-value="sale_last_order_id.name if sale_last_order_id else ''" readonly="1"/>
             </div>
           </div>
         </xpath>
