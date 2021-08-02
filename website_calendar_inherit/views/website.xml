@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2021 Munin
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+
+<odoo>
+    <template id="website_calendar_appointment" inherit_id="website_calendar.appointment">
+        <xpath expr="//div[1]/div[1]/div[1]" position="after">
+            <div t-if="failed=='sale'" class="alert alert-danger mt16" role="alert">
+                        <p>
+                            <strong>Appointment failed!</strong>
+                            The Reference does not match with any related order.
+                        </p><p>
+                            Please, Verify the Reference of your order.
+                        </p>
+                    </div>
+        </xpath>
+    </template>
+    <template id="website_calendar_appointment_form" inherit_id="website_calendar.appointment_form">
+        <xpath expr="//form[1]/div[3]" position="after">
+            <div class="form-group row col-xl-8">
+            <label for="sale_order" class="col-md-4 col-form-label">Reference</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" name="sale_order" t-att-value="sale_last_order_id.name if sale_last_order_id else ''" readonly="1"/>
+            </div>
+          </div>
+        </xpath>
+    </template>
+
+</odoo>
