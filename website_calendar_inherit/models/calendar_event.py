@@ -37,7 +37,7 @@ class CalendarEvent(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'views': [(view.id, 'form')],
-            'target': 'current',
+            'target': 'new',
             'res_id': sale.id,
             'context': context}
 
