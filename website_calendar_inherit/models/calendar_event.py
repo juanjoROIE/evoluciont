@@ -13,7 +13,7 @@ class CalendarEvent(models.Model):
     sale_tasks_count = fields.Integer(string='Tasks', compute='_compute_tasks_ids', groups="project.group_project_user")
 
     def create_sale_order(self):
-        partner = (self.partner_ids.filtered(lambda x: x.id not in self.user_id.partner_id.ids)[0]) if \
+        partner = self.partner_ids.filtered(lambda x: x.id not in self.user_id.partner_id.ids)[0] if \
             self.partner_ids else False
         if not partner:
             raise UserError("Agregar un Usuario como Participante")
