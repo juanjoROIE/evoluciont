@@ -3,6 +3,7 @@
 
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
+from odoo.exceptions import UserError
 
 
 class CalendarEvent(models.Model):
@@ -10,6 +11,33 @@ class CalendarEvent(models.Model):
 
     sale_id = fields.Many2one(comodel_name="sale.order", string="Sale Order", required=False, copy=False)
     sale_tasks_count = fields.Integer(string='Tasks', compute='_compute_tasks_ids', groups="project.group_project_user")
+
+    def create_sale_order(self):
+        partner = (self.partner_ids.filtered(lambda x: x.id not in self.user_id.partner_id.ids)[0]) if \
+            self.partner_ids else False
+        if not partner:
+            raise UserError("Agregar un Usuario como Participante")
+        sale = self.env['sale.order'].create({
+            'partner_id': partner.id,
+            'partner_invoice_id': partner.id,
+            'partner_shipping_id': partner.id,
+        })
+        if not sale:
+            return False
+        sale.onchange_partner_id()
+        view = self.env.ref('sale.view_order_form')
+        self.sale_id = sale.id
+        context = dict(self._context)
+        context['form_view_initial_mode'] = 'edit'
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'views': [(view.id, 'form')],
+            'target': 'current',
+            'res_id': sale.id,
+            'context': context}
 
     @api.depends('sale_id.tasks_ids')
     def _compute_tasks_ids(self):
