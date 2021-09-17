@@ -36,6 +36,7 @@ class CalendarEvent(models.Model):
             'res_model': 'sale.order',
             'view_type': 'form',
             'view_mode': 'form',
+            'nodestroy': True,
             'views': [(view.id, 'form')],
             'target': 'new',
             'res_id': sale.id,
